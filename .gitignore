@@ -1,2 +1,4 @@
-privateInfo.*
 venv/
+.idea/
+privateInfo.*
+*.iml
