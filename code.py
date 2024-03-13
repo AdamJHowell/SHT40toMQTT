@@ -297,7 +297,7 @@ def configure_client():
     port = broker_info["port"],
     username = configuration["aio_username"],
     password = configuration["aio_key"],
-    socket_pool = pool,
+    socket_pool = socketpool.SocketPool( wifi.radio ),
     client_id = configuration["clientId"],
     is_ssl = False,
   )
@@ -343,8 +343,6 @@ if __name__ == "__main__":
 
   broker_info = wifi_connect()
 
-  pool = socketpool.SocketPool( wifi.radio )
-
   mqtt_client = configure_client()
 
   try:
@@ -352,7 +350,10 @@ if __name__ == "__main__":
     mqtt_client.connect()
   except MMQTTException as mqtt_exception:
     pixel.fill( (255, 0, 0) )
-    print( f"MQTT exception during connection: {mqtt_exception}" )
+    print( "\n-------------------------" )
+    print( "MMQTTException triggered!" )
+    print( "-------------------------\n" )
+    print( f"Exception details: {mqtt_exception}" )
   except KeyError as key_error:
     pixel.fill( (255, 0, 0) )
     print( "\n--------------------------------------------------" )
@@ -363,19 +364,21 @@ if __name__ == "__main__":
     print( f"An OS error interrupted the process: {os_error}" )
 
   try:
-    print( f"Subscribing to {command_topic}" )
+    print( f"Subscribing to {command_topic}..." )
     mqtt_client.subscribe( command_topic )
-
+    print( f"Successfully subscribed to {command_topic}." )
+    infinite_loop()
   except KeyError as key_error:
     pixel.fill( (255, 0, 0) )
     print( "\n--------------------------------------------------" )
-    print( "There was a key error, likely in privateInfo.json!" )
+    print( "There was a key error while subscribing!" )
     print( "--------------------------------------------------\n" )
   except MMQTTException as mqtt_error:
     pixel.fill( (255, 0, 0) )
-    print( f"MQTT error: {mqtt_error}" )
-
-    infinite_loop()
+    print( "\n-------------------------" )
+    print( "MMQTTException triggered!" )
+    print( "-------------------------\n" )
+    print( mqtt_error )
 
   finally:
     cleanup()
